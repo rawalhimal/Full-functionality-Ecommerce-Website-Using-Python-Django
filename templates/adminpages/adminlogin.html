@@ -1,0 +1,24 @@
+{% extends 'base.html'%}
+{%block titile%}Admin login{%endblock%}
+{%block content%}
+<style>
+    .errorlist{
+        color:red;
+    }
+</style>
+<div class="container">
+    <h3>Login Form</h3><hr>
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <form action="" method="POST">
+                {%csrf_token%}
+               {{form.as_p}}
+               <button class="btn btn-primary">Login As a Admin</button>
+               {%if error %}
+               <li style="color:red">{{error}}</li>
+               {%endif%}
+            </form>
+        </div>
+    </div>
+</div>
+{%endblock%}

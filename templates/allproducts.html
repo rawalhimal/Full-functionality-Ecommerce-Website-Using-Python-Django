@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{%block title%}All Products{%endblock%}
+{%block content%}
+<div class="container">
+    <h4>Categories wise Product list</h4>
+    {%for cat in allproducts%}
+    <h4><strong>{{cat.title}}</strong></h4>
+    <hr>
+     <div class="row">
+        {%for p in cat.product_set.all%}
+            <div class="col-md-4 card" style="border: 1px solid rgb(221, 220, 220);">
+                <div class="m-3">
+                <h5><a href="{% url 'ecomapp:productdetail' p.slug %}">{{p.title}}</a></h5>
+                <img src="{{p.image.url}}" class="img-fluid" style="height:200px;object-fit:contain">
+                <p class="mt-3">Price:R<strike>Rs.{{p.marked_price}}</strike> Rs.{{p.selling_price}}</p>
+                <a href="{%url 'ecomapp:addtocart' p.id %}" class="btn btn-primary">Add to Cart</a>
+                </div>
+         </div>
+        {%endfor%}
+     </div>
+    {%endfor%}
+    <hr>
+</div>
+{%endblock%}
