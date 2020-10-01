@@ -3,7 +3,8 @@ from django.views.generic import TemplateView,View,CreateView,FormView,DetailVie
 from .forms import CheckoutForm,CustomerRegistrationForm,CustomerLoginForm
 from django.contrib.auth import authenticate,login,logout
 from django.db.models import Q
-from django.urls import reverse_lazy
+import requests as req
+from django.urls import reverse_lazy,reverse
 from django.core.paginator import Paginator
 from .models import *
 # Create your views here.
@@ -169,6 +170,10 @@ class CheckoutView(EcomMixin,CreateView):
             form.instance.total=cart_obj.total
             form.instance.order_status="Order Received"
             del self.request.session['cart_id']
+            pm=form.cleaned_data.get("payment_method")
+            order=form.save()
+            if pm == "Esewa":
+                return redirect(reverse("ecomapp:esewarequest") + "?o_id=" + str(order.id))
         else:
             return redirect('ecompapp:home')
         return super().form_valid(form)
@@ -192,6 +197,41 @@ class CustomerRegistration(CreateView):
             return next_url
         else:
             return self.success_url
+
+
+class EsewaRequestView(View):
+    def get(self,request,*args,**kwargs):
+        o_id=request.GET.get('o_id')
+        order= Order.objects.get(id=o_id)
+        context={
+             "order":order
+        }
+        return render(request,'esewarequest.html',context)
+
+class EsewaVerifyView(View):
+    def get(self,request,*args,**kwargs):
+        import xml.etree.ElementTree as ET
+        oid=request.GET.get('oid')
+        amt=request.GET.get('amt')
+        refId=request.GET.get('refId')
+        url ="https://uat.esewa.com.np/epay/transrec"
+        d = {
+            'amt': amt,
+            'scd': 'epay_payment',
+            'rid':refId ,
+            'pid':oid,
+        }
+        resp = req.post(url, d)
+        root = ET.fromstring(resp.content)
+        status=root[0].text.strip()
+        order_id=oid.split("_")[1]
+        order_obj=Order.objects.get(id=order_id)
+        if status == "Success":
+            order_obj.payment_completed = True
+            order_obj.save()
+            return redirect('/')
+        else:
+            return redirect("/esewa-request/?o_id="+ order_id)
 
 class CustomerLogoutView(View):
     def get(self,request):
@@ -266,7 +306,6 @@ class SearchView(TemplateView):
         context=super().get_context_data(**kwargs)
         kw=self.request.GET.get('keyword')
         results=Product.objects.filter(Q(title__icontains=kw) | Q(description__icontains=kw))
-        print(results,'..........')
         context['results']=results
         return context
 
@@ -315,7 +354,6 @@ class AdminOrderDetailView(AdminRequiredMixin,DetailView):
 class AdminOrderListView(AdminRequiredMixin,ListView):
     template_name='adminpages/adminorderlist.html'
     queryset=Order.objects.all().order_by('-id')
-    print(queryset)
     context_object_name='allorders'
 
 class AdminOrderStatusView(AdminRequiredMixin,View):

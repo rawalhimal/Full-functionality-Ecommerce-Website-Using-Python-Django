@@ -12,6 +12,10 @@ urlpatterns=[
      path('manage-cart/<int:cp_id>/',ManageCartView.as_view(),name='managecart'),
      path('empty-cart/',EmptyCartView.as_view(),name='emptycart'),
      path('checkout/',CheckoutView.as_view(),name='checkout'),
+
+     path('esewarequest/',EsewaRequestView.as_view(),name='esewarequest'),
+     path('esewa-verify/',EsewaVerifyView.as_view(),name='esewaverify'),
+
      path('register/',CustomerRegistration.as_view(),name='customerregistration'),
      path('logout/',CustomerLogoutView.as_view(),name='customerlogout'),
      path('login/',CustomerLoginView.as_view(),name='customerloginform'),

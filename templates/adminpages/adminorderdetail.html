@@ -11,6 +11,7 @@
             <p><span class="font-weight-bold">Order On:</span> {{ord_obj.created_at}}({{ord_obj.created_at|timesince}} ago)</p>
             <p><span class="font-weight-bold">Customer Information:</span>By {{ord_obj.order_by}},{{ord_obj.mobile}}</p>
             <p><span class="font-weight-bold">Shipping Address:</span> {{ord_obj.shipping_address}},{{ord_obj.email}}</p>
+            <p><span class="font-weight-bold">Payment Information:</span>Using Esewa  ({%if ord_obj.payment_completed%}Payment completed {%else%}Not paid{%endif%})</p>
             <h4>Order Items</h4>
             <table class="table">
                 <thead>
